@@ -1,0 +1,11 @@
+arxiv
+bertopic
+sentence-transformers
+pandas
+numpy
+matplotlib
+plotly
+tqdm
+umap-learn
+hdbscan
+scikit-learn
