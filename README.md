@@ -13,6 +13,9 @@ Inspired by [Benchmarking topic models on scientific articles using BERTeley](ht
 - Analyzes topic frequency over time
 - Visualizes trends as interactive HTML plots
 
+## Research
+Exact project research paper exposé proposal found in [EXPOSE.md](EXPOSE.md).
+
 ## Usage
 1. Download metadata (customise with flags):
    ```bash
