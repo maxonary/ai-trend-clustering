@@ -17,25 +17,44 @@ Inspired by [Benchmarking topic models on scientific articles using BERTeley](ht
 Exact project research paper exposé proposal found in [EXPOSE.md](EXPOSE.md).
 
 ## Usage
-1. Download metadata (customise with flags):
-   ```bash
-   python arxiv_fetcher.py --category cs.CL --start_year 2020 --max_results 500
-   ```
-2. Compute embeddings (optionally choose a different model):
-   ```bash
-   python embed.py --model all-MiniLM-L6-v2
-   ```
-3. Train the BERTopic model:
-   ```bash
-   python cluster.py
-   ```
-4. Build the interactive timeline visualisation:
-   ```bash
-   python trends.py --bins 20
-   ```
+### Option A · Interactive (recommended)
+
+Launch the Streamlit dashboard; it lets you fetch, embed, cluster and explore in one place:
+
+```bash
+streamlit run app.py
+```
+
+*Sidebar →* choose arXiv category, start-year & max-results, hit **Run fetch→embed→cluster**.  
+A new folder is created under `runs/` (e.g. `runs/2024-07-03_1508_cs.CL/`) containing
+
+```
+papers.json      # raw abstracts
+embeddings.npy   # sentence-transformer vectors
+topic_model/     # BERTopic artefacts
+```
+
+Tabs provide a 3-D topic map, temporal trend plot and a pipeline explanation.
+
+### Option B · Command-line pipeline
+
+```bash
+# run everything head-less, results end up in runs/<timestamp>_<cat>/
+python -m src.pipeline --category cs.CL --start-year 2020 --max-results 1000
+```
+
+### Option C · Individual steps (advanced)
+
+```bash
+python -m src.fetcher   --category cs.CL --start_year 2020 --max_results 1000 --out mypapers.json
+python -m src.embedder  --metadata mypapers.json --out myemb.npy
+python -m src.cluster   --metadata mypapers.json --embeddings myemb.npy --out my_topic_model
+```
 
 ## Output
-- `topic_trends.html`: Interactive visualization of topic evolution
+- `runs/<timestamp>_<category>/topic_model/` → loadable by BERTopic & Streamlit  
+- `runs/<...>/papers.json` & `embeddings.npy` for downstream analysis  
+- HTML exports (`topics_3d.html`, `topic_trends.html`) can be generated from the dashboard
 
 ## Key Features
 - **Automated data ingestion** from the arXiv API (`cs.AI`, `cs.CL`, `cs.LG`, configurable).
