@@ -2,6 +2,7 @@ import arxiv
 import json
 import argparse
 from tqdm import tqdm
+from arxiv import UnexpectedEmptyPageError
 
 def fetch_arxiv(category: str = "cs.CL", max_results: int = 500, start_year: int = 2020, out_file: str = "arxiv_papers.json"):
     """Fetch metadata from arXiv using the newer arxiv.Client API.
@@ -25,20 +26,26 @@ def fetch_arxiv(category: str = "cs.CL", max_results: int = 500, start_year: int
     client = arxiv.Client(page_size=100, delay_seconds=3)  # be gentle on the API
 
     papers = []
-    # Iterate over the results lazily, stop after `max_results` satisfying the year-filter
-    for res in tqdm(client.results(search), desc="Downloading metadata", unit="paper"):
-        if res.published.year < start_year:
-            # Because we sorted by submitted date descending, we can break early once we hit the threshold
-            break
+    iterator = client.results(search)
+    with tqdm(total=max_results, desc="Downloading metadata", unit="paper") as pbar:
+        while len(papers) < max_results:
+            try:
+                res = next(iterator)
+            except StopIteration:
+                break  # no more results
+            except UnexpectedEmptyPageError:
+                # arXiv returned an empty page; treat as end of results
+                break
 
-        papers.append({
-            "title": res.title.strip().replace("\n", " "),
-            "abstract": res.summary.strip().replace("\n", " "),
-            "date": res.published.strftime("%Y-%m-%d")
-        })
+            if res.published.year < start_year:
+                break  # older than requested window
 
-        if len(papers) >= max_results:
-            break
+            papers.append({
+                "title": res.title.strip().replace("\n", " "),
+                "abstract": res.summary.strip().replace("\n", " "),
+                "date": res.published.strftime("%Y-%m-%d")
+            })
+            pbar.update(1)
 
     with open(out_file, "w", encoding="utf-8") as f:
         json.dump(papers, f, indent=2, ensure_ascii=False)
