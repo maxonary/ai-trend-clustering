@@ -205,3 +205,10 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Temporary files
+embeddings.npy
+topic_model
+arxiv_papers.json
+topic_trends.html
+topics_3d.html
