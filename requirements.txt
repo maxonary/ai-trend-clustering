@@ -9,3 +9,4 @@ tqdm
 umap-learn
 hdbscan
 scikit-learn
+streamlit
