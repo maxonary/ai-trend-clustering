@@ -3,6 +3,7 @@ import numpy as np
 from bertopic import BERTopic
 import argparse
 from sklearn.feature_extraction.text import CountVectorizer
+from umap import UMAP
 
 # -------------------------
 # Topic clustering script
@@ -31,13 +32,16 @@ def run_clustering(metadata_path: str = "arxiv_papers.json", embeddings_path: st
     abstracts = [p["abstract"] for p in papers]
     embeddings = np.load(embeddings_path)
 
-    # Custom vectorizer to remove stop-words and allow n-grams
+    # Custom vectorizer and UMAP (single-thread to avoid numba threading issues)
     vectorizer = CountVectorizer(stop_words="english", ngram_range=(1, ngram_max), min_df=min_df)
+
+    umap_model = UMAP(n_components=5, n_neighbors=15, min_dist=0.1, metric="cosine", random_state=42, n_jobs=1)
 
     topic_model = BERTopic(verbose=True,
                            calculate_probabilities=True,
                            language="english",
-                           vectorizer_model=vectorizer)
+                           vectorizer_model=vectorizer,
+                           umap_model=umap_model)
     topic_model.fit(abstracts, embeddings)
     topic_model.save(model_outdir)
 
