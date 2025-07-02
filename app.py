@@ -46,8 +46,11 @@ with tab3d:
     sizes = topic_info.Count.values
     sizes = 20 + 40 * (sizes - sizes.min())/(sizes.max()-sizes.min()+1e-6)
 
+    def short_label(tid: int, top_n: int = 3):
+        return " ".join([w for w, _ in model.get_topic(tid)[:top_n]])
+
     hover = [
-        f"Topic {row.Topic}<br>Size: {row.Count}<br>{model.get_topic(row.Topic)[:5]}"
+        f"<b>{short_label(row.Topic)}</b><br>(Topic {row.Topic} · {row.Count} docs)"
         for _, row in topic_info.iterrows()
     ]
 
