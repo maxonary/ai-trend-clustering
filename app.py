@@ -24,6 +24,11 @@ model = load_model(model_path)
 # -------------- 3-D MAP TAB --------------
 with tab3d:
     st.subheader("3-D Topic Relation Map")
+    st.markdown(
+        "Each point is a topic; proximity indicates semantic similarity "
+        "after projecting the high-dimensional topic embeddings to three "
+        "UMAP components. Bubble size = topic frequency."
+    )
     n_neighbors = st.slider("UMAP n_neighbors", 2, 100, 15)
     min_dist = st.slider("UMAP min_dist", 0.0, 1.0, 0.1)
 
@@ -55,7 +60,14 @@ with tab3d:
             text=hover, hoverinfo="text"
         )
     )
-    fig3d.update_layout(margin=dict(l=0,r=0,b=0,t=20))
+    fig3d.update_layout(
+        scene=dict(
+            xaxis_title="UMAP-1",
+            yaxis_title="UMAP-2",
+            zaxis_title="UMAP-3"
+        ),
+        margin=dict(l=0, r=0, b=0, t=20)
+    )
     st.plotly_chart(fig3d, use_container_width=True)
 
 # -------------- TREND TAB ---------------
