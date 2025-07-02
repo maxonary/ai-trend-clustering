@@ -1,9 +1,15 @@
-import streamlit as st
 import umap
-import plotly.graph_objects as go
-from bertopic import BERTopic
 import json
-from datetime import datetime
+import pathlib
+import datetime
+
+from bertopic import BERTopic
+import plotly.graph_objects as go
+import streamlit as st
+
+from src.fetcher import fetch_arxiv
+from src.embedder import generate_embeddings
+from src.cluster import run_clustering
 
 # ------------------ UI ------------------
 st.title("BERTopic Explorer")
@@ -11,8 +17,41 @@ st.title("BERTopic Explorer")
 model_path = st.text_input("BERTopic model path", "topic_model")
 metadata_path = st.text_input("Paper metadata JSON", "arxiv_papers.json")
 
-# Tabs for 3-D map and timeline visualisation
-tab3d, tabTrend = st.tabs(["3-D Topic Map", "Topic Trends"])
+# Sidebar controls ----------------------
+st.sidebar.header("🛠️ Pipeline Controls")
+category = st.sidebar.text_input("arXiv category", "cs.CL")
+start_year = st.sidebar.number_input("Start year", 2000, 2030, 2020)
+max_results = st.sidebar.number_input("Max results", 100, 10000, 500, step=100)
+if st.sidebar.button("Run fetch→embed→cluster"):
+
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
+    run_dir = pathlib.Path("runs") / f"{timestamp}_{category}"
+    run_dir.mkdir(parents=True, exist_ok=True)
+
+    papers_json = run_dir / "papers.json"
+    embeddings_file = run_dir / "embeddings.npy"
+    model_dir = run_dir / "topic_model"
+
+    with st.spinner("Fetching abstracts from arXiv…"):
+        fetch_arxiv(category, max_results, start_year, str(papers_json))
+
+    with st.spinner("Generating embeddings…"):
+        generate_embeddings(str(papers_json), out_file=str(embeddings_file))
+
+    with st.spinner("Clustering topics…"):
+        run_clustering(str(papers_json), str(embeddings_file), str(model_dir))
+
+    st.sidebar.success(f"Pipeline completed in {run_dir} .")
+
+    # update fields
+    st.session_state["model_path"] = str(model_dir)
+    st.session_state["metadata_path"] = str(papers_json)
+
+    model_path = str(model_dir)
+    metadata_path = str(papers_json)
+
+# Tabs for visualisation and docs
+tab3d, tabTrend, tabInfo = st.tabs(["3-D Topic Map", "Topic Trends", "How it works"])
 
 # ---------- Load Model (cached) ----------
 @st.cache_resource  # prevents re-loading model every slider move
