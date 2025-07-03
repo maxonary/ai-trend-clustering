@@ -1,7 +1,7 @@
 import umap
 import json
 import pathlib
-import datetime
+import datetime as dt
 
 from bertopic import BERTopic
 import plotly.graph_objects as go
@@ -24,7 +24,7 @@ start_year = st.sidebar.number_input("Start year", 2000, 2030, 2020)
 max_results = st.sidebar.number_input("Max results", 100, 10000, 500, step=100)
 if st.sidebar.button("Run fetch→embed→cluster"):
 
-    timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
+    timestamp = dt.datetime.now().strftime("%Y-%m-%d_%H%M%S")
     run_dir = pathlib.Path("runs") / f"{timestamp}_{category}"
     run_dir.mkdir(parents=True, exist_ok=True)
 
@@ -122,7 +122,7 @@ with tabTrend:
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
         abstracts = [d["abstract"] for d in data]
-        dates = [datetime.strptime(d["date"], "%Y-%m-%d") for d in data]
+        dates = [dt.datetime.strptime(d["date"], "%Y-%m-%d") for d in data]
         return abstracts, dates
 
     try:
