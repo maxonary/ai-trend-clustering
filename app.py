@@ -14,11 +14,26 @@ from src.cluster import run_clustering
 # ------------------ UI ------------------
 st.title("BERTopic Explorer")
 
-model_path = st.text_input("BERTopic model path", "topic_model")
-metadata_path = st.text_input("Paper metadata JSON", "arxiv_papers.json")
+def list_run_dirs(root="runs"):
+    root_p = pathlib.Path(root)
+    if not root_p.exists():
+        return []
+    return sorted([d for d in root_p.iterdir() if d.is_dir()], reverse=True)
+
+# Sidebar: existing runs selector
+run_dirs = list_run_dirs()
+selected_run = st.sidebar.selectbox("Select run to explore", run_dirs, format_func=str)
+
+# derive paths from selection
+if selected_run:
+    model_path = str(selected_run / "topic_model")
+    metadata_path = str(selected_run / "papers.json")
+else:
+    model_path = "topic_model"
+    metadata_path = "arxiv_papers.json"
 
 # Sidebar controls ----------------------
-st.sidebar.header("🛠️ Pipeline Controls")
+st.sidebar.header("Pipeline Controls")
 category = st.sidebar.text_input("arXiv category", "cs.CL")
 start_year = st.sidebar.number_input("Start year", 2000, 2030, 2020)
 max_results = st.sidebar.number_input("Max results", 100, 10000, 500, step=100)
@@ -41,14 +56,8 @@ if st.sidebar.button("Run fetch→embed→cluster"):
     with st.spinner("Clustering topics…"):
         run_clustering(str(papers_json), str(embeddings_file), str(model_dir))
 
-    st.sidebar.success(f"Pipeline completed in {run_dir} .")
-
-    # update fields
-    st.session_state["model_path"] = str(model_dir)
-    st.session_state["metadata_path"] = str(papers_json)
-
-    model_path = str(model_dir)
-    metadata_path = str(papers_json)
+    run_dirs.insert(0, run_dir)
+    st.sidebar.success("Pipeline completed → new run added to selector")
 
 # Tabs for visualisation and docs
 tab3d, tabTrend, tabInfo = st.tabs(["3-D Topic Map", "Topic Trends", "How it works"])
