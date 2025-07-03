@@ -22,7 +22,7 @@ Exact project research paper exposé proposal found in [EXPOSE.md](EXPOSE.md).
 Launch the Streamlit dashboard; it lets you fetch, embed, cluster and explore in one place:
 
 ```bash
-streamlit run app.py
+streamlit run src/app.py
 ```
 
 *Sidebar →* choose arXiv category, start-year & max-results, hit **Run fetch→embed→cluster**.  

@@ -7,9 +7,9 @@ from bertopic import BERTopic
 import plotly.graph_objects as go
 import streamlit as st
 
-from src.fetcher import fetch_arxiv
-from src.embedder import generate_embeddings
-from src.cluster import run_clustering
+from fetcher import fetch_arxiv
+from embedder import generate_embeddings
+from cluster import run_clustering
 
 # ------------------ UI ------------------
 st.title("BERTopic Explorer")
