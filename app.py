@@ -104,9 +104,9 @@ with tab3d:
     )
     fig3d.update_layout(
         scene=dict(
-            xaxis_title="UMAP-1",
-            yaxis_title="UMAP-2",
-            zaxis_title="UMAP-3"
+            xaxis_title="Semantic Dim 1",
+            yaxis_title="Semantic Dim 2",
+            zaxis_title="Semantic Dim 3"
         ),
         margin=dict(l=0, r=0, b=0, t=20)
     )
