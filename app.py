@@ -138,3 +138,34 @@ with tabTrend:
         st.plotly_chart(figTrend, use_container_width=True)
     except Exception as e:
         st.error(f"Could not generate trends: {e}")
+
+
+# ---------- INFO TAB -------------------
+with tabInfo:
+    st.subheader("How the Pipeline Works")
+    st.markdown(
+        """
+    **Workflow**
+
+    1. **Fetch** – Download recent arXiv abstracts (`arxiv_fetcher.py`).
+    2. **Embed** – Convert abstracts to sentence embeddings with *all-MiniLM-L6-v2* (`embed.py`).
+    3. **Cluster** – Use **BERTopic** (UMAP + HDBSCAN) to extract topic clusters (`cluster.py`).
+    4. **Visualise** – Produce the 3-D topic map and time-series plots.
+
+    ```
+    arXiv API --> fetcher --> papers.json
+                         |
+                         v
+                 embedder (SBERT) --> embeddings.npy
+                         |
+                         v
+                BERTopic cluster  --> topic_model/
+                         |
+        +----------------+----------------+
+        |                                 |
+    3-D topic map                    Trend plot
+    ```
+
+    *UMAP axes are abstract components; bubbles indicate topic frequency.*
+    """
+    )
